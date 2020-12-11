@@ -1,32 +1,11 @@
 #!/usr/bin/env python3
 # coding=utf-8
-__author__ = "zhaohongwei"
-__email__ = "hongweifuture@163.com"
-__contact__ = "https://blog.csdn.net/z_johnny"
-__version__ = "0.1"
-__date__ = "2019/9/2 16:37"
-__maintainer__ = "zhaohongwei,"
-__description__ = ""
-
-"""
-History:
-2019/9/2 16:37 : Created by zhaohongwei 
-"""
 
 import datetime
 import sys
 import unittest
 from xml.sax import saxutils
-
-# 支持 python2 and python3  --zhaohongwei
-python3 = (sys.version_info[0] > 2)
-if python3:
-    import io as StringIO
-else:
-    import StringIO
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
+import io
 
 
 class OutputRedirector(object):
@@ -43,23 +22,19 @@ class OutputRedirector(object):
     def flush(self):
         self.fp.flush()
 
+
 stdout_redirector = OutputRedirector(sys.stdout)
 stderr_redirector = OutputRedirector(sys.stderr)
 
-# ----------------------------------------------------------------------
-# Template Chinese
 
 class Template_CN(object):
     STATUS = {
-    0: u'通过',
-    1: u'失败',
-    2: u'错误',
+        0: u'通过',
+        1: u'失败',
+        2: u'错误',
     }
-
-    # 增加 tester  --zhaohongwei
     DEFAULT_TITLE = '测试报告'
     DEFAULT_DESCRIPTION = ''
-    DEFAULT_TESTER = 'Johnny Zhao'
 
     # ------------------------------------------------------------------------
     # HTML Template
@@ -69,7 +44,6 @@ class Template_CN(object):
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>%(title)s</title>
-    <meta name="generator" content="%(generator)s"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     
     <link href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -242,8 +216,6 @@ class Template_CN(object):
 </body>
 </html>
 """
-    # variables: (title, generator, stylesheet, heading, report, ending, chart_script)
-    # 增加饼图  --zhaohongwei  引用自huilansame
     ECHARTS_SCRIPT = """
         <script type="text/javascript">
             // 基于准备好的dom，初始化echarts实例
@@ -405,18 +377,19 @@ a.popup_link:hover {
 }
 #header_row {
     font-weight: bold;
+    font-size:14px;
     color: white;
     background-color: #777;
 }
-#total_row  { font-weight: bold; }
-.passClass  { background-color: #00DB00; }
-.failClass  { background-color: #FF5151; }
-.errorClass { background-color: #FF8A19; }
+#total_row  { font-weight: bold; font-size : 14px;}
+.passClass  { background-color: #00DB00; font-size : 14px;}
+.failClass  { background-color: #FF5151;font-size : 14px; }
+.errorClass { background-color: #FF8A19; font-size : 14px;}
 .passCase   { color: #00A600; }
 .failCase   { color: #FF5151; font-weight: bold; }
 .errorCase  { color: #FF8A19; font-weight: bold; }
 .hiddenRow  { display: none; }
-.testcase   { margin-left: 2em; }
+.testcase   { margin-left: 2em; font-size : 14px;}
 
 
 /* -- ending ---------------------------------------------------------------------- */
@@ -436,16 +409,15 @@ a.popup_link:hover {
 </style>
 """
 
-
     # ------------------------------------------------------------------------
     # Heading
     #
     # 修改饼图位置 --zhaohongwei
     HEADING_TMPL = """
     <div class='page-header'>
-        <h1>%(title)s
+        <h1 style="color:gray;font-size:30px">%(title)s
         </h1>
-        <div style="float:left;width:50%%;">
+        <div style="float:left;width:50%%;font-size:14px">
             <p class='parameters'> %(parameters)s</p>
             <br>
             <br>
@@ -458,7 +430,6 @@ a.popup_link:hover {
 
     HEADING_ATTRIBUTE_TMPL = """<p class='attribute'><strong>%(name)s:</strong> %(value)s</p>
 """ # variables: (name, value)
-
 
     # ------------------------------------------------------------------------
     # Report
@@ -483,7 +454,7 @@ a.popup_link:hover {
 <col align='right' />
 </colgroup>
 <tr id='header_row'>
-    <td>测试套件/测试用例</td>
+    <td>测试用例</td>
     <td>总数</td>
     <td>通过</td>
     <td>失败</td>
@@ -498,47 +469,6 @@ a.popup_link:hover {
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td>通过率：%(passrate)s</td>
-    
-</tr>
-</table>
-""" # variables: (test_list, count, Pass, fail, error)
-
-    REPORT_TMPL_IMAGES = u"""
-<div class="btn-group btn-group-sm">
-<button class="btn btn-primary" onclick='javascript:showCase(0)'>概览</button>
-<button class="btn btn-success" onclick='javascript:showCase(1)'>成功</button>
-<button class="btn btn-danger" onclick='javascript:showCase(2)'>失败</button>
-<button class="btn btn-warning" onclick='javascript:showCase(3)'>错误</button>
-<button class="btn btn-info" onclick='javascript:showCase(4)'>全部</button>
-</div>
-<p></p>
-<table id='result_table' class="table table-bordered">
-<colgroup>
-<col align='left' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-</colgroup>
-<tr id='header_row'>
-    <td>测试套件/测试用例</td>
-    <td>总数</td>
-    <td>通过</td>
-    <td>失败</td>
-    <td>错误</td>
-    <td>查看</td>
-    <td>截图</td>
-</tr>
-%(test_list)s
-<tr id='total_row'>
-    <td>总计</td>
-    <td>%(count)s</td>
-    <td>%(Pass)s</td>
-    <td>%(fail)s</td>
-    <td>%(error)s</td>
-    <td>通过率：%(passrate)s</td>
-    <td>&nbsp;</td>
     
 </tr>
 </table>
@@ -592,30 +522,6 @@ a.popup_link:hover {
 </tr>
 """ # variables: (tid, Class, style, desc, status)
 
-    REPORT_TEST_WITH_OUTPUT_TMPL_IMAGES = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>
-
-    <!--css div popup start-->
-    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')" >
-        %(status)s</a>
-
-    <div id='div_%(tid)s' class="popup_window">
-        <div style='text-align: right; color:red;cursor:pointer'>
-        <a onfocus='this.blur();' onclick="document.getElementById('div_%(tid)s').style.display = 'none' " >
-           [x]</a>
-        </div>
-        <pre>
-        %(script)s
-        </pre>
-    </div>
-    <!--css div popup end-->
-
-    </td>
-    <td>%(img)s</td>
-</tr>
-""" # variables: (tid, Class, style, desc, status)
 
     REPORT_TEST_NO_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
@@ -624,18 +530,11 @@ a.popup_link:hover {
 </tr>
 """ # variables: (tid, Class, style, desc, status)
 
-    REPORT_TEST_NO_OUTPUT_TMPL_IMAGES = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>%(status)s</td>
-    <td>%(img)s</td>
-</tr>
-""" # variables: (tid, Class, style, desc, status)
-
-
     REPORT_TEST_OUTPUT_TMPL = r"""
-%(id)s: %(output)s
-""" # variables: (id, output)
+%(output)s
+"""
+
+  # variables: (id, output)
 
     IMG_TMPL = r"""
         <a  onfocus='this.blur();' href="javacript:void(0);" onclick="show_img(this)">显示截图</a>
@@ -667,45 +566,32 @@ a.popup_link:hover {
 
 TestResult = unittest.TestResult
 
+
 class _TestResult(TestResult):
-    # note: _TestResult is a pure representation of results.
-    # It lacks the output and reporting ability compares to unittest._TextTestResult.
-    # 增加subtest和通过率
-    def __init__(self, verbosity=1):
+    def __init__(self):
         TestResult.__init__(self)
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
         self.failure_count = 0
         self.error_count = 0
-        self.verbosity = verbosity
 
-        # result is a list of result in 4 tuple
-        # (
-        #   result code (0: success; 1: fail; 2: error),
-        #   TestCase object,
-        #   Test output (byte string),
-        #   stack trace,
-        # )
         self.result = []
         self.subtestlist = []
         self.passrate = float(0)
-
-
 
     def startTest(self, test):
         '''增加截图'''
         test.imgs = getattr(test, "imgs", [])
         TestResult.startTest(self, test)
         # just one buffer for both stdout and stderr
-        self.outputBuffer = StringIO.StringIO()
+        self.outputBuffer = io.StringIO()
         stdout_redirector.fp = self.outputBuffer
         stderr_redirector.fp = self.outputBuffer
         self.stdout0 = sys.stdout
         self.stderr0 = sys.stderr
         sys.stdout = stdout_redirector
         sys.stderr = stderr_redirector
-
 
     def complete_output(self):
         """
@@ -719,13 +605,8 @@ class _TestResult(TestResult):
             self.stderr0 = None
         return self.outputBuffer.getvalue()
 
-
     def stopTest(self, test):
-        # Usually one of addSuccess, addError or addFailure would have been called.
-        # But there are some path in unittest that would bypass this.
-        # We must disconnect stdout in stopTest(), which is guaranteed to be called.
         self.complete_output()
-
 
     def addSuccess(self, test):
         if test not in self.subtestlist:
@@ -733,62 +614,31 @@ class _TestResult(TestResult):
             TestResult.addSuccess(self, test)
             output = self.complete_output()
             self.result.append((0, test, output, ''))
-            if self.verbosity > 1:
-                sys.stderr.write(u'ok ')
-                sys.stderr.write(str(test))
-                sys.stderr.write(u'\n')
-            else:
-                sys.stderr.write(u'.')
+            sys.stderr.write(u'ok ')
+            sys.stderr.write(str(test))
+            sys.stderr.write(u'\n')
 
     def addError(self, test, err):
-        '''增加截图'''
         self.error_count += 1
         TestResult.addError(self, test, err)
         _, _exc_str = self.errors[-1]
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
 
-        if python3:
-            if not getattr(test, "driver",""):
-                pass
-            else:
-                try:
-                    driver = getattr(test, "driver")
-                    test.imgs.append(driver.get_screenshot_as_base64())
-                except Exception:
-                    pass
-
-        if self.verbosity > 1:
-            sys.stderr.write(u'E  ')
-            sys.stderr.write(str(test))
-            sys.stderr.write('\n')
-        else:
-            sys.stderr.write(u'E')
+        sys.stderr.write(u'E  ')
+        sys.stderr.write(str(test))
+        sys.stderr.write('\n')
 
     def addFailure(self, test, err):
-        '''增加截图'''
         self.failure_count += 1
         TestResult.addFailure(self, test, err)
         _, _exc_str = self.failures[-1]
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
 
-        if python3:
-            if not getattr(test, "driver",""):
-                pass
-            else:
-                try:
-                    driver = getattr(test, "driver")
-                    test.imgs.append(driver.get_screenshot_as_base64())
-                except Exception as e:
-                    pass
-                
-        if self.verbosity > 1:
-            sys.stderr.write(u'F  ')
-            sys.stderr.write(str(test))
-            sys.stderr.write(u'\n')
-        else:
-            sys.stderr.write(u'F')
+        sys.stderr.write(u'F  ')
+        sys.stderr.write(str(test))
+        sys.stderr.write(u'\n')
 
     def addSubTest(self, test, subtest, err):
         if err is not None:
@@ -797,92 +647,71 @@ class _TestResult(TestResult):
             if issubclass(err[0], test.failureException):
                 self.failure_count += 1
                 errors = self.failures
-                errors.append((subtest, self._exc_info_to_string(err, subtest)))
+                errors.append((subtest, self._exc_info_to_string(err,
+                                                                 subtest)))
                 output = self.complete_output()
-                self.result.append((1, test, output + '\nSubTestCase Failed:\n' + str(subtest),
-                                    self._exc_info_to_string(err, subtest)))
-                if self.verbosity > 1:
-                    sys.stderr.write('F  ')
-                    sys.stderr.write(str(subtest))
-                    sys.stderr.write('\n')
-                else:
-                    sys.stderr.write('F')
+                self.result.append(
+                    (1, test,
+                     output + '\nSubTestCase Failed:\n' + str(subtest),
+                     self._exc_info_to_string(err, subtest)))
+                sys.stderr.write('F  ')
+                sys.stderr.write(str(subtest))
+                sys.stderr.write('\n')
             else:
                 self.error_count += 1
                 errors = self.errors
-                errors.append((subtest, self._exc_info_to_string(err, subtest)))
+                errors.append((subtest, self._exc_info_to_string(err,
+                                                                 subtest)))
                 output = self.complete_output()
                 self.result.append(
-                    (2, test, output + '\nSubTestCase Error:\n' + str(subtest), self._exc_info_to_string(err, subtest)))
-                if self.verbosity > 1:
-                    sys.stderr.write('E  ')
-                    sys.stderr.write(str(subtest))
-                    sys.stderr.write('\n')
-                else:
-                    sys.stderr.write('E')
+                    (2, test, output + '\nSubTestCase Error:\n' + str(subtest),
+                     self._exc_info_to_string(err, subtest)))
+                sys.stderr.write('E  ')
+                sys.stderr.write(str(subtest))
+                sys.stderr.write('\n')
             self._mirrorOutput = True
         else:
             self.subtestlist.append(subtest)
             self.subtestlist.append(test)
             self.success_count += 1
             output = self.complete_output()
-            self.result.append((0, test, output + '\nSubTestCase Pass:\n' + str(subtest), ''))
-            if self.verbosity > 1:
-                sys.stderr.write('ok ')
-                sys.stderr.write(str(subtest))
-                sys.stderr.write('\n')
-            else:
-                sys.stderr.write('.')
+            self.result.append(
+                (0, test, output + '\nSubTestCase Pass:\n' + str(subtest), ''))
+            sys.stderr.write('ok ')
+            sys.stderr.write(str(subtest))
+            sys.stderr.write('\n')
+
 
 class HTMLTestReport(Template_CN):
-    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None,tester=None,images=False):
-        '''增加测试者'''
+    def __init__(self, stream=sys.stdout, title=None, description=None):
         self.stream = stream
-        self.verbosity = verbosity
-        if title is None:
-            self.title = self.DEFAULT_TITLE
-        else:
-            self.title = title
-        if description is None:
-            self.description = self.DEFAULT_DESCRIPTION
-        else:
-            self.description = description
-        if tester is None:
-            self.tester = self.DEFAULT_TESTER
-        else:
-            self.tester = tester
-
-        self.IMAGES = images
+        self.title = self.DEFAULT_TITLE
+        self.description = self.DEFAULT_DESCRIPTION
         self.startTime = datetime.datetime.now()
 
-
     def run(self, test):
-        "Run the given test case or test suite."
-        result = _TestResult(self.verbosity)
+        result = _TestResult()
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        if python3:
-            sys.stderr.write('\nTime Elapsed: %s\n' % (self.stopTime - self.startTime))
-        else:
-            print >>sys.stderr, u'\nTime Elapsed: %s' % (self.stopTime-self.startTime)
-        return result
+        sys.stderr.write('\nTime Elapsed: %s\n' %
+                         (self.stopTime - self.startTime))
 
+        return result
 
     def sortResult(self, result_list):
         # unittest does not seems to run in any particular order.
         # Here at least we want to group them together by class.
         rmap = {}
         classes = []
-        for n,t,o,e in result_list:
+        for n, t, o, e in result_list:
             cls = t.__class__
             if not cls in rmap:
                 rmap[cls] = []
                 classes.append(cls)
-            rmap[cls].append((n,t,o,e))
+            rmap[cls].append((n, t, o, e))
         r = [(cls, rmap[cls]) for cls in classes]
         return r
-
 
     def getReportAttributes(self, result):
         """
@@ -892,64 +721,52 @@ class HTMLTestReport(Template_CN):
         startTime = str(self.startTime)[:19]
         duration = str(self.stopTime - self.startTime)
         status = []
-        if result.success_count: status.append(u'通过 %s'    % result.success_count)
+        if result.success_count: status.append(u'通过 %s' % result.success_count)
         if result.failure_count: status.append(u'失败 %s' % result.failure_count)
-        if result.error_count:   status.append(u'错误 %s'   % result.error_count)
-        total = result.success_count+result.failure_count+result.error_count
+        if result.error_count: status.append(u'错误 %s' % result.error_count)
+        total = result.success_count + result.failure_count + result.error_count
         if status:
             status = ' '.join(status)
-            self.passrate = str('%.1f%%' % (float(result.success_count) / total*100))
+            self.passrate = str('%.1f%%' %
+                                (float(result.success_count) / total * 100))
         else:
             status = 'none'
-        return [
-            (u'测试人员', self.tester),
-            (u'开始时间', startTime),
-            (u'运行时长', duration),
-            (u'测试结果', '共 {}  {}  通过率:{}'.format(total, status, self.passrate))
-        ]
-
+        return [(u'开始时间', startTime), (u'运行时长', duration),
+                (u'测试结果', '共 {}  {}  通过率:{}'.format(total, status,
+                                                    self.passrate))]
 
     def generateReport(self, test, result):
         report_attrs = self.getReportAttributes(result)
-        generator = u'HTMLTestRunner %s' % __version__
         stylesheet = self._generate_stylesheet()
         heading = self._generate_heading(report_attrs)
         report = self._generate_report(result)
         ending = self._generate_ending()
         chart = self._generate_chart(result)
-        output = self.HTML_TMPL % dict(
-            title = saxutils.escape(self.title),
-            generator = generator,
-            stylesheet = stylesheet,
-            heading = heading,
-            report = report,
-            ending = ending,
-            chart_script= chart
-
-        )
+        output = self.HTML_TMPL % dict(title=saxutils.escape(self.title),
+                                       stylesheet=stylesheet,
+                                       heading=heading,
+                                       report=report,
+                                       ending=ending,
+                                       chart_script=chart)
         self.stream.write(output.encode('utf8'))
-
 
     def _generate_stylesheet(self):
         return self.STYLESHEET_TMPL
-
 
     def _generate_heading(self, report_attrs):
         a_lines = []
         for name, value in report_attrs:
             line = self.HEADING_ATTRIBUTE_TMPL % dict(
-                    name = saxutils.escape(name),
-                    value = saxutils.escape(value),
-                )
+                name=saxutils.escape(name),
+                value=saxutils.escape(value),
+            )
             a_lines.append(line)
         heading = self.HEADING_TMPL % dict(
-            title = saxutils.escape(self.title),
-            parameters = ''.join(a_lines),
-            description = saxutils.escape(self.description),
-            tester=saxutils.escape(self.tester),
+            title=saxutils.escape(self.title),
+            parameters=''.join(a_lines),
+            description=saxutils.escape(self.description),
         )
         return heading
-
 
     def _generate_report(self, result):
         rows = []
@@ -957,7 +774,7 @@ class HTMLTestReport(Template_CN):
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
             np = nf = ne = 0
-            for n,t,o,e in cls_results:
+            for n, t, o, e in cls_results:
                 if n == 0: np += 1
                 elif n == 1: nf += 1
                 else: ne += 1
@@ -969,49 +786,31 @@ class HTMLTestReport(Template_CN):
                 name = "%s.%s" % (cls.__module__, cls.__name__)
             doc = cls.__doc__ and cls.__doc__.split("\n")[0] or ""
             desc = doc and '%s: %s' % (name, doc) or name
-            if self.IMAGES:
-                row = self.REPORT_CLASS_TMPL_IMAGES % dict(
-                    style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
-                    desc = desc,
-                    count = np+nf+ne,
-                    Pass = np,
-                    fail = nf,
-                    error = ne,
-                    cid = u'c%s' % (cid+1),
-                )
-            else:
-                row = self.REPORT_CLASS_TMPL % dict(
-                    style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
-                    desc = desc,
-                    count = np+nf+ne,
-                    Pass = np,
-                    fail = nf,
-                    error = ne,
-                    cid = u'c%s' % (cid+1),
-                )
+
+            row = self.REPORT_CLASS_TMPL % dict(
+                style=ne > 0 and 'errorClass' or nf > 0 and 'failClass'
+                or 'passClass',
+                desc=desc,
+                count=np + nf + ne,
+                Pass=np,
+                fail=nf,
+                error=ne,
+                cid=u'c%s' % (cid + 1),
+            )
             rows.append(row)
 
-            for tid, (n,t,o,e) in enumerate(cls_results):
+            for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
 
-        if self.IMAGES:
-            report = self.REPORT_TMPL_IMAGES % dict(
-                test_list = ''.join(rows),
-                count = str(result.success_count+result.failure_count+result.error_count),
-                Pass = str(result.success_count),
-                fail = str(result.failure_count),
-                error = str(result.error_count),
-                passrate=self.passrate,
-            )
-        else:
-            report = self.REPORT_TMPL % dict(
-                test_list = ''.join(rows),
-                count = str(result.success_count+result.failure_count+result.error_count),
-                Pass = str(result.success_count),
-                fail = str(result.failure_count),
-                error = str(result.error_count),
-                passrate=self.passrate,
-            )
+        report = self.REPORT_TMPL % dict(
+            test_list=''.join(rows),
+            count=str(result.success_count + result.failure_count +
+                      result.error_count),
+            Pass=str(result.success_count),
+            fail=str(result.failure_count),
+            error=str(result.error_count),
+            passrate=self.passrate,
+        )
 
         return report
 
@@ -1027,40 +826,20 @@ class HTMLTestReport(Template_CN):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
         # 增加error --zhaohongwei
-        tid = (n == 0 and 'p' or n == 1 and 'f' or 'e') + 't%s_%s' % (cid + 1, tid + 1)
+        tid = (n == 0 and 'p' or n == 1 and 'f'
+               or 'e') + 't%s_%s' % (cid + 1, tid + 1)
 
         name = t.id().split('.')[-1]
         doc = t.shortDescription() or ""
         desc = doc and ('%s: %s' % (name, doc)) or name
-        if self.IMAGES:
-            tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL_IMAGES or self.REPORT_TEST_NO_OUTPUT_TMPL_IMAGES
-        else:
-            tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL or self.REPORT_TEST_NO_OUTPUT_TMPL
 
-        # o and e should be byte string because they are collected from stdout and stderr?
-        if isinstance(o, str):
-            # uo = unicode(o.encode('string_escape'))
-            if python3:
-                uo = o
-            else:
-                uo = o.decode('utf-8', 'ignore')
-        else:
-            uo = o
-        if isinstance(e,str):
-            # TODO: some problem with 'string_escape': it escape \n and mess up formating
-            # ue = unicode(e.encode('string_escape'))
-            if python3:
-                ue = e
-            else:
-                # ue = e.decode('latin-1')
-                ue = e.decode('utf-8', 'ignore')
-        else:
-            ue = e
+        tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL or self.REPORT_TEST_NO_OUTPUT_TMPL
+
+        uo = o
+        ue = e
 
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
-            id = tid,
-            output = saxutils.escape(uo+ue),
-        )
+            output=saxutils.escape(uo + ue), )
         if getattr(t, 'imgs', []):
             # 判断截图列表，如果有则追加
             tmp = u""
@@ -1073,12 +852,13 @@ class HTMLTestReport(Template_CN):
         else:
             imgs = u"""没有截图"""
         row = tmpl % dict(
-            tid = tid,
-            Class = (n == 0 and 'hiddenRow' or 'none'),
-            style = (n == 2 and 'errorCase') or (n == 1 and 'failCase') or (n == 0 and 'passCase'),
-            desc = desc,
-            script = script,
-            status = self.STATUS[n],
+            tid=tid,
+            Class=(n == 0 and 'hiddenRow' or 'none'),
+            style=(n == 2 and 'errorCase') or (n == 1 and 'failCase') or
+            (n == 0 and 'passCase'),
+            desc=desc,
+            script=script,
+            status=self.STATUS[n],
             img=imgs,
         )
         rows.append(row)
@@ -1088,9 +868,11 @@ class HTMLTestReport(Template_CN):
     def _generate_ending(self):
         return self.ENDING_TMPL
 
+
 ##############################################################################
 # Facilities for running tests from the command line
 ##############################################################################
+
 
 # Note: Reuse unittest.TestProgram to launch test. In the future we may
 # build our own launcher to support more specific command line
@@ -1101,13 +883,10 @@ class TestProgram(unittest.TestProgram):
     class for command line parameters.
     """
     def runTests(self):
-        # Pick HTMLTestRunner as the default test runner.
-        # base class's testRunner parameter is not useful because it means
-        # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
-            # self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
-            self.testRunner = HTMLTestReport(verbosity=self.verbosity)
+            self.testRunner = HTMLTestReport()
         unittest.TestProgram.runTests(self)
+
 
 main = TestProgram
 
@@ -1117,4 +896,3 @@ main = TestProgram
 
 if __name__ == "__main__":
     main(module=None)
-
