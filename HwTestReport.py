@@ -31,7 +31,6 @@ class Template_CN(object):
     STATUS = {
         0: u'通过',
         1: u'失败',
-        2: u'错误',
     }
     DEFAULT_TITLE = '测试报告'
     DEFAULT_DESCRIPTION = ''
@@ -71,23 +70,15 @@ class Template_CN(object):
             tr = trs[i];
             id = tr.id;
             if (id.substr(0,2) == 'ft') {
-            if (level == 1 || level == 3 ||  level == 0) {
-                tr.className = 'hiddenRow';
-            }
-            else {
-                tr.className = '';
-                }
-            }
-            if (id.substr(0,2) == 'pt') {
-                if (level == 2 || level == 3 ||  level == 0){
+                if (level == 1 || level == 3 ||  level == 0) {
                     tr.className = 'hiddenRow';
                 }
                 else {
                     tr.className = '';
                 }
             }
-            if (id.substr(0,2) == 'et') {
-                if (level == 1 || level == 2 ||  level == 0 ){
+            if (id.substr(0,2) == 'pt') {
+                if (level == 2 || level == 3 ||  level == 0){
                     tr.className = 'hiddenRow';
                 }
                 else {
@@ -231,11 +222,11 @@ class Template_CN(object):
                     trigger: 'item',
                     formatter: "{a} <br/>{b} : {c} ({d}%%)"
                 },
-                color: ['#00A600', '#FF5151', '#FF8A19'],
+                color: ['#00A600', '#FF5151'],
                 legend: {
                     orient: 'vertical',
                     left: 'left',
-                    data: ['通过','失败','错误']
+                    data: ['通过','失败']
                 },
                 series : [
                     {
@@ -245,8 +236,7 @@ class Template_CN(object):
                         center: ['50%%', '60%%'],
                         data:[
                             {value:%(Pass)s, name:'通过'},
-                            {value:%(fail)s, name:'失败'},
-                            {value:%(error)s, name:'错误'}
+                            {value:%(fail)s, name:'失败'}
                         ],
                         itemStyle: {
                             emphasis: {
@@ -304,7 +294,7 @@ a.popup_link:hover {
 }
 
 .popup_window {
-    display: none;
+    display: block;
     position: relative;
     left: 0px;
     top: 0px;
@@ -383,11 +373,11 @@ a.popup_link:hover {
 }
 #total_row  { font-weight: bold; font-size : 14px;}
 .passClass  { background-color: #00DB00; font-size : 14px;}
-.failClass  { background-color: #FF5151;font-size : 14px; }
+.failClass  { background-color: #FF5151; font-size : 14px; }
 .errorClass { background-color: #FF8A19; font-size : 14px;}
-.passCase   { color: #00A600; }
-.failCase   { color: #FF5151; font-weight: bold; }
-.errorCase  { color: #FF8A19; font-weight: bold; }
+.passCase   { color: #00A600; font-size : 14px;}
+.failCase   { color: #FF5151; font-weight: bold;font-size : 14px; }
+.errorCase  { color: #FF8A19; font-weight: bold;font-size : 14px; }
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; font-size : 14px;}
 
@@ -440,7 +430,6 @@ a.popup_link:hover {
 <button class="btn btn-primary" onclick='javascript:showCase(0)'>概览</button>
 <button class="btn btn-success" onclick='javascript:showCase(1)'>成功</button>
 <button class="btn btn-danger" onclick='javascript:showCase(2)'>失败</button>
-<button class="btn btn-warning" onclick='javascript:showCase(3)'>错误</button>
 <button class="btn btn-info" onclick='javascript:showCase(4)'>全部</button>
 </div>
 <p></p>
@@ -458,7 +447,6 @@ a.popup_link:hover {
     <td>总数</td>
     <td>通过</td>
     <td>失败</td>
-    <td>错误</td>
     <td>查看</td>
 </tr>
 %(test_list)s
@@ -467,7 +455,6 @@ a.popup_link:hover {
     <td>%(count)s</td>
     <td>%(Pass)s</td>
     <td>%(fail)s</td>
-    <td>%(error)s</td>
     <td>通过率：%(passrate)s</td>
     
 </tr>
@@ -480,20 +467,7 @@ a.popup_link:hover {
     <td>%(count)s</td>
     <td>%(Pass)s</td>
     <td>%(fail)s</td>
-    <td>%(error)s</td>
     <td><a href="javascript:showClassDetail('%(cid)s',%(count)s)">详情</a></td>
-</tr>
-""" # variables: (style, desc, count, Pass, fail, error, cid)
-
-    REPORT_CLASS_TMPL_IMAGES = u"""
-<tr class='%(style)s'>
-    <td>%(desc)s</td>
-    <td>%(count)s</td>
-    <td>%(Pass)s</td>
-    <td>%(fail)s</td>
-    <td>%(error)s</td>
-    <td><a href="javascript:showClassDetail('%(cid)s',%(count)s)">详情</a></td>
-    <td>&nbsp;</td>
 </tr>
 """ # variables: (style, desc, count, Pass, fail, error, cid)
 
@@ -505,7 +479,7 @@ a.popup_link:hover {
 
     <!--css div popup start-->
     <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')" >
-        %(status)s</a>
+        </a>
 
     <div id='div_%(tid)s' class="popup_window">
         <div style='text-align: right; color:red;cursor:pointer'>
@@ -526,7 +500,7 @@ a.popup_link:hover {
     REPORT_TEST_NO_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>%(status)s</td>
+    <td colspan='5' align='center' style="font-size:14px">%(status)s</td>
 </tr>
 """ # variables: (tid, Class, style, desc, status)
 
@@ -534,27 +508,13 @@ a.popup_link:hover {
 %(output)s
 """
 
-  # variables: (id, output)
+    # variables: (output)
 
-    IMG_TMPL = r"""
-        <a  onfocus='this.blur();' href="javacript:void(0);" onclick="show_img(this)">显示截图</a>
-    <div align="center" class="screenshots"  style="display:none">
-        <a class="close_shots"  onclick="hide_img(this)"></a>
-        %(imgs)s
-        <div class="imgyuan"></div>
-    </div>
-    """
-
-    # ------------------------------------------------------------------------
-    # ENDING
-    #
-
-    # 版权和返回顶部
     ENDING_TMPL = r"""
 <div id='ending'>
-    <p align="center">
-    Copyright &copy 2016
-    <a href="http://blog.csdn.net/z_johnny" target="_blank"> HONGWEI </a>
+    <p align="center" style="font-size:14px">
+    Copyright &copy 2020
+    <a href="https://www.google.com.hk/webhp?hl=zh-CN&sourceid=cnhp" target="_blank">Google</a>
     Inc. All rights reserved.
     </p>
 </div>
@@ -574,17 +534,14 @@ class _TestResult(TestResult):
         self.stderr0 = None
         self.success_count = 0
         self.failure_count = 0
-        self.error_count = 0
 
         self.result = []
         self.subtestlist = []
         self.passrate = float(0)
 
     def startTest(self, test):
-        '''增加截图'''
         test.imgs = getattr(test, "imgs", [])
         TestResult.startTest(self, test)
-        # just one buffer for both stdout and stderr
         self.outputBuffer = io.StringIO()
         stdout_redirector.fp = self.outputBuffer
         stderr_redirector.fp = self.outputBuffer
@@ -618,17 +575,6 @@ class _TestResult(TestResult):
             sys.stderr.write(str(test))
             sys.stderr.write(u'\n')
 
-    def addError(self, test, err):
-        self.error_count += 1
-        TestResult.addError(self, test, err)
-        _, _exc_str = self.errors[-1]
-        output = self.complete_output()
-        self.result.append((2, test, output, _exc_str))
-
-        sys.stderr.write(u'E  ')
-        sys.stderr.write(str(test))
-        sys.stderr.write('\n')
-
     def addFailure(self, test, err):
         self.failure_count += 1
         TestResult.addFailure(self, test, err)
@@ -644,31 +590,16 @@ class _TestResult(TestResult):
         if err is not None:
             if getattr(self, 'failfast', False):
                 self.stop()
-            if issubclass(err[0], test.failureException):
-                self.failure_count += 1
-                errors = self.failures
-                errors.append((subtest, self._exc_info_to_string(err,
-                                                                 subtest)))
-                output = self.complete_output()
-                self.result.append(
-                    (1, test,
-                     output + '\nSubTestCase Failed:\n' + str(subtest),
-                     self._exc_info_to_string(err, subtest)))
-                sys.stderr.write('F  ')
-                sys.stderr.write(str(subtest))
-                sys.stderr.write('\n')
-            else:
-                self.error_count += 1
-                errors = self.errors
-                errors.append((subtest, self._exc_info_to_string(err,
-                                                                 subtest)))
-                output = self.complete_output()
-                self.result.append(
-                    (2, test, output + '\nSubTestCase Error:\n' + str(subtest),
-                     self._exc_info_to_string(err, subtest)))
-                sys.stderr.write('E  ')
-                sys.stderr.write(str(subtest))
-                sys.stderr.write('\n')
+            self.failure_count += 1
+            errors = self.failures
+            errors.append((subtest, self._exc_info_to_string(err, subtest)))
+            output = self.complete_output()
+            self.result.append(
+                (1, test, output + '\nSubTestCase Failed:\n' + str(subtest),
+                 self._exc_info_to_string(err, subtest)))
+            sys.stderr.write('F  ')
+            sys.stderr.write(str(subtest))
+            sys.stderr.write('\n')
             self._mirrorOutput = True
         else:
             self.subtestlist.append(subtest)
@@ -723,8 +654,7 @@ class HTMLTestReport(Template_CN):
         status = []
         if result.success_count: status.append(u'通过 %s' % result.success_count)
         if result.failure_count: status.append(u'失败 %s' % result.failure_count)
-        if result.error_count: status.append(u'错误 %s' % result.error_count)
-        total = result.success_count + result.failure_count + result.error_count
+        total = result.success_count + result.failure_count
         if status:
             status = ' '.join(status)
             self.passrate = str('%.1f%%' %
@@ -794,7 +724,6 @@ class HTMLTestReport(Template_CN):
                 count=np + nf + ne,
                 Pass=np,
                 fail=nf,
-                error=ne,
                 cid=u'c%s' % (cid + 1),
             )
             rows.append(row)
@@ -804,11 +733,9 @@ class HTMLTestReport(Template_CN):
 
         report = self.REPORT_TMPL % dict(
             test_list=''.join(rows),
-            count=str(result.success_count + result.failure_count +
-                      result.error_count),
+            count=str(result.success_count + result.failure_count),
             Pass=str(result.success_count),
             fail=str(result.failure_count),
-            error=str(result.error_count),
             passrate=self.passrate,
         )
 
@@ -818,14 +745,11 @@ class HTMLTestReport(Template_CN):
         chart = self.ECHARTS_SCRIPT % dict(
             Pass=str(result.success_count),
             fail=str(result.failure_count),
-            error=str(result.error_count),
         )
         return chart
 
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
-        # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
-        # 增加error --zhaohongwei
         tid = (n == 0 and 'p' or n == 1 and 'f'
                or 'e') + 't%s_%s' % (cid + 1, tid + 1)
 
@@ -834,23 +758,8 @@ class HTMLTestReport(Template_CN):
         desc = doc and ('%s: %s' % (name, doc)) or name
 
         tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL or self.REPORT_TEST_NO_OUTPUT_TMPL
-
-        uo = o
-        ue = e
-
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
-            output=saxutils.escape(uo + ue), )
-        if getattr(t, 'imgs', []):
-            # 判断截图列表，如果有则追加
-            tmp = u""
-            for i, img in enumerate(t.imgs):
-                if i == 0:
-                    tmp += """ <img src="data:image/jpg;base64,%s" style="display: block;" class="img"/>\n""" % img
-                else:
-                    tmp += """ <img src="data:image/jpg;base64,%s" style="display: none;" class="img"/>\n""" % img
-            imgs = self.IMG_TMPL % dict(imgs=tmp)
-        else:
-            imgs = u"""没有截图"""
+            output=saxutils.escape(o + e), )
         row = tmpl % dict(
             tid=tid,
             Class=(n == 0 and 'hiddenRow' or 'none'),
@@ -859,7 +768,6 @@ class HTMLTestReport(Template_CN):
             desc=desc,
             script=script,
             status=self.STATUS[n],
-            img=imgs,
         )
         rows.append(row)
         if not has_output:

@@ -21,6 +21,9 @@ class TestTopbind(unittest.TestCase):
         print('failed!')
         self.assertFalse(True)
 
+    def testEmpty(self):
+        self.assertFalse(False)
+
 
 if __name__ == "__main__":
     suite1 = unittest.TestLoader().loadTestsFromTestCase(TestTopbind)
