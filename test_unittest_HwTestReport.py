@@ -16,7 +16,6 @@ History:
 
 import unittest
 from HwTestReport import HTMLTestReport
-from HwTestReport import HTMLTestReportEN
 
 class Case_assert_1(unittest.TestCase):
     def setUp(self):
@@ -25,6 +24,7 @@ class Case_assert_1(unittest.TestCase):
         pass
 
     def test_ok(self):
+        print('hello world')
         self.assertEqual(1,1)
 
     def test_faile(self):
@@ -40,6 +40,7 @@ class Case_assert_2(unittest.TestCase):
         pass
 
     def test_ok(self):
+        print('hello world')
         self.assertTrue(True)
 
 class Case_assert_3(unittest.TestCase):
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     suite.addTest(Case_assert_4('test_faile'))
 
     with open('./HwTestReport.html', 'wb') as report:
-        runner = HTMLTestReportEN(stream=report,
+        runner = HTMLTestReport(stream=report,
                                 verbosity=2,
                                 title='HwTestReport 测试',
                                 description='带截图，带饼图，带详情',
