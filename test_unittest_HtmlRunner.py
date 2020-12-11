@@ -9,7 +9,7 @@ from scipy import interpolate
 import unittest
 import time
 
-from HwTestReport import HTMLTestReport
+from TestHtmlRunner import HTMLTestReport
 
 
 class TestTopbind(unittest.TestCase):
@@ -29,6 +29,6 @@ if __name__ == "__main__":
     suite1 = unittest.TestLoader().loadTestsFromTestCase(TestTopbind)
     suites = unittest.TestSuite()
     suites.addTests(suite1)
-    with open('./HwTestReport.html', 'wb') as report:
+    with open('./TestReport.html', 'wb') as report:
         runner = HTMLTestReport(stream=report, title='topbind test_bindings')
         runner.run(suites)
