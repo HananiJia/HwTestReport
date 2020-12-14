@@ -7,6 +7,7 @@ import unittest
 import json
 from xml.sax import saxutils
 import io
+from collections import defaultdict
 
 
 class OutputRedirector(object):
@@ -619,12 +620,27 @@ class _TestResult(TestResult):
 
 
 class HTMLTestReport(Template_CN):
-    def __init__(self, stream=sys.stdout, title="", description=""):
+    def __init__(self, stream=sys.stdout, code_path = "",title="", description=""):
         self.stream = stream
         self.title = title
         self.description = description
         self.startTime = datetime.datetime.now()
         self.json_dict = {}
+        self.orgin_code = defaultdict(list)
+        if code_path :
+            with open(code_path,'r') as f:
+                find_class = False
+                def_name = ''
+                for r in f.readlines():
+                    if find_class:
+                        if 'def' in r and 'self' in r:
+                            start = r.index('def')
+                            end = r.index('self')
+                            def_name = r[start+4:end-1]
+                        print('def_name:',def_name)
+                        self.orgin_code[def_name].append(r.strip())
+                    if 'TestTopbind' in r:
+                        find_class = True
 
     def run(self, test):
         result = _TestResult()
@@ -641,13 +657,21 @@ class HTMLTestReport(Template_CN):
         # Here at least we want to group them together by class.
         rmap = {}
         classes = []
+        # results = []
         for n, t, o, e in result_list:
+            # results.append({
+            #     'n':str(n),
+            #     't':str(t),
+            #     'o':str(o),
+            #     'e':str(e)
+            # })
             cls = t.__class__
             if not cls in rmap:
                 rmap[cls] = []
                 classes.append(cls)
             rmap[cls].append((n, t, o, e))
         r = [(cls, rmap[cls]) for cls in classes]
+        # self.json_dict['list'] = results
         return r
 
     def getReportAttributes(self, result):
@@ -668,11 +692,11 @@ class HTMLTestReport(Template_CN):
                                 (float(result.success_count) / total * 100))
         else:
             status = 'none'
-        self.json_dict['#test'] = {
-            'total': total,
-            'success': result.success_count,
-            'failure': result.failure_count,
-            'passrate': self.passrate
+        self.json_dict['#UnitTest'] = {
+            'TOTAL': total,
+            'PASSED': result.success_count,
+            'FAILED': result.failure_count,
+            'PASSRATE': self.passrate
         }
         return [(u'开始时间', startTime), (u'运行时长', duration),
                 (u'测试结果', '共 {}  {}  通过率:{}'.format(total, status,
@@ -734,7 +758,7 @@ class HTMLTestReport(Template_CN):
             desc = doc and '%s: %s' % (name, doc) or name
             json_object = {
                 'ClassName': desc,
-                '#count': {
+                '#COUNT': {
                     'TOTAL': np + nf,
                     'PASSED': np,
                     'FAILED': nf
@@ -755,9 +779,12 @@ class HTMLTestReport(Template_CN):
                 json_dict = self._generate_report_test(rows, cid, tid, n, t, o,
                                                        e)
                 json_list.append(json_dict)
-            json_object['CASES'] = json_list
+            json_object['TestCases'] = json_list
             object_list.append(json_object)
-        self.json_dict['OBJECT'] = object_list
+        object_list_dict = {}
+        for o in object_list:
+            object_list_dict[o['ClassName']] = o
+        self.json_dict['TestClasses'] = object_list_dict
         report = self.REPORT_TMPL % dict(
             test_list=''.join(rows),
             count=str(result.success_count + result.failure_count),
@@ -798,8 +825,9 @@ class HTMLTestReport(Template_CN):
             status=self.STATUS[n],
         )
         json_dict[name] = {
-            'status': self.STATUS_EN[n],
-            'output': saxutils.escape(o + e)
+            'STATUS': self.STATUS_EN[n],
+            'OUTPUT': saxutils.escape(o + e),
+            'CODE' : self.orgin_code[name]
         }
         rows.append(row)
         # if not has_output:
