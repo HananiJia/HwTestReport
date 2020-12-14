@@ -4,18 +4,9 @@ import os
 import sys
 import glob
 import json
-import numpy as np
-from scipy import interpolate
 import unittest
 import time
-from typing import Union, Set, Dict, List, Any, Tuple, Optional
-from pprint import pprint
-import shutil
-import geojsonio
-
-PWD = os.path.abspath(os.path.dirname(__file__))
-PROJECT_SOURCE_DIR = os.path.dirname(PWD)
-from TestHtmlRunner import HTMLTestReport
+from TestReport import HTMLTestReport
 
 
 class TestTopbind(unittest.TestCase):
